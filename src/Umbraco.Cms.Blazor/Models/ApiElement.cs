@@ -2,9 +2,9 @@ using System.Text.Json;
 
 namespace Umbraco.Cms.Blazor.Models;
 
-public class ApiElement
+public class ApiElement<TPublishedElement>
 {
-    public ApiElement(Guid id, string contentType, JsonElement properties)
+    public ApiElement(Guid id, string contentType, TPublishedElement properties)
     {
         Id = id;
         ContentType = contentType;
@@ -13,5 +13,5 @@ public class ApiElement
 
     public Guid Id { get; }
     public string ContentType { get; }
-    public JsonElement Properties { get; }
+    public TPublishedElement Properties { get; }
 }

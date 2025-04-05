@@ -1,8 +1,11 @@
 @using System.Text.Json
+@using System.Text.Json.Serialization
 @using System.Web
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using Umbraco.Cms.Blazor.Models
 @using Umbraco.Cms.Blazor.Services
 @inject UmbracoClient Umbraco
-@inject ComponentService ComponentService
 
 @if (_componentType != null)
 {
@@ -20,13 +23,23 @@
     protected override async Task OnInitializedAsync()
     {
         var pageContent = await Umbraco.Content.GetByPathAsync(HttpUtility.UrlEncode(RouteData.Template));
-        
+
         _componentType = ComponentService.GetComponentType(pageContent.ContentType);
-        _modelType = ComponentService.GetModelType(pageContent.ContentType);
-        
+
+        var jObject = pageContent.Properties as JObject;
+        var dict = jObject.ToObject<Dictionary<string, object>>();
+
+        foreach (var kvp in dict)
+        {
+            _parameters[kvp.Key] = kvp.Value;
+        }
+
         _parameters["ContentType"] = pageContent.ContentType;
         // Need to fix this
-        _parameters["Model"] = pageContent.Properties.Deserialize(_modelType);
+        /*_parameters["Model"] = pageContent.Properties.Deserialize(_modelType, new JsonSerializerOptions
+        {
+            IncludeFields = true,
+        });*/
         _parameters["CreateDate"] = pageContent.CreateDate;
         _parameters["UpdateDate"] = pageContent.UpdateDate;
         _parameters["Id"] = pageContent.Id;
